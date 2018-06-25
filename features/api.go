@@ -22,7 +22,7 @@ func New(s *mgo.Session) *FeatureAPI {
 	return &FeatureAPI{s}
 }
 
-// GetFeature returns status okay and JSON of the desired feature
+// GetFeature returns status 200 and JSON of the desired feature
 func (fa FeatureAPI) GetFeature(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	id := p.ByName("id")
 

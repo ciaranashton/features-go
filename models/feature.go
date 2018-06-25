@@ -7,6 +7,6 @@ import (
 //Feature model
 type Feature struct {
 	Id      bson.ObjectId `json:"id" bson:"_id"`
-	Name    string        `json:"name" bson:"name"`
+	Name    string        `json:"name"`
 	Enabled bool          `json:"enabled"`
 }
