@@ -19,6 +19,7 @@ func main() {
 	r := httprouter.New()
 
 	// Routes
+	r.GET("/features", fa.GetFeatures)
 	r.GET("/features/:id", fa.GetFeature)
 	r.POST("/features", fa.CreateFeature)
 	r.DELETE("/features/:id", fa.DeleteFeature)
