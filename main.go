@@ -1,9 +1,9 @@
 package main
 
 import (
+	"log"
 	"net/http"
-
-	"github.com/urfave/negroni"
+	"os"
 
 	"gopkg.in/mgo.v2"
 
@@ -11,9 +11,30 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+var (
+	info *log.Logger
+	warn *log.Logger
+	er   *log.Logger
+)
+
+func init() {
+	info = log.New(os.Stdout,
+		"\033[1;32m[Info]:\033[0m ",
+		log.Ldate|log.Ltime|log.Lshortfile)
+
+	warn = log.New(os.Stdout,
+		"\033[1;33m[Warning]:\033[0m ",
+		log.Ldate|log.Ltime|log.Lshortfile)
+
+	er = log.New(os.Stderr,
+		"\033[1;31m[Error]:\033[0m ",
+		log.Ldate|log.Ltime|log.Lshortfile)
+}
+
 func main() {
 	// Create new instance of the Features API package
-	fa := features.New(getSession())
+	fa := features.New(getSession(), info)
+	p := "8080"
 
 	// Create Router
 	r := httprouter.New()
@@ -24,21 +45,18 @@ func main() {
 	r.POST("/features", fa.CreateFeature)
 	r.DELETE("/features/:id", fa.DeleteFeature)
 
-	// Add logger middleware that logs each incoming request and response.
-	n := negroni.New()
-	n.Use(negroni.NewLogger())
-	n.UseHandler(r)
-
 	// Listen on port 8080
-	http.ListenAndServe("localhost:8080", n)
+	info.Println("Server listening on port:", p)
+	er.Fatal(http.ListenAndServe("localhost:"+p, r))
 }
 
 // Setup or MongoDB session. Currently, hitting a local instance of mongo.
 func getSession() *mgo.Session {
+	info.Println("[MongoDB] Connecting to MongoDB...")
 	s, err := mgo.Dial("mongodb://localhost")
 
 	if err != nil {
-		panic(err)
+		er.Fatalln(err)
 	}
 	return s
 }

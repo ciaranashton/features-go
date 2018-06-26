@@ -14,6 +14,7 @@ import (
 func (fa FeatureAPI) GetFeatures(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	fs := []models.Feature{}
 
+	fa.info.Println("[MongoDB] Fetching all features from mongoDB")
 	if err := fa.session.DB("cjla").C("features").Find(nil).All(&fs); err != nil {
 		w.WriteHeader(404)
 		return
