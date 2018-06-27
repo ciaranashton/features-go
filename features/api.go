@@ -4,14 +4,14 @@ import (
 	"log"
 
 	"github.com/julienschmidt/httprouter"
-	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2"
 )
 
 // FeatureAPI structure
 type FeatureAPI struct {
 	session *mgo.Session
 	info    *log.Logger
-	warn    *log.Logger
+	debug   *log.Logger
 	err     *log.Logger
 }
 

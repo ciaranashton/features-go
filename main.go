@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	info *log.Logger
-	warn *log.Logger
-	er   *log.Logger
+	info  *log.Logger
+	debug *log.Logger
+	er    *log.Logger
 )
 
 func init() {
@@ -22,8 +22,8 @@ func init() {
 		"\033[1;32m[Info]:\033[0m ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
-	warn = log.New(os.Stdout,
-		"\033[1;33m[Warning]:\033[0m ",
+	debug = log.New(os.Stdout,
+		"\033[1;33m[Debug]:\033[0m ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
 	er = log.New(os.Stderr,
@@ -37,12 +37,12 @@ func main() {
 	if err != nil {
 		er.Fatalln("Error loading environment variables", err)
 	}
-	p := os.Getenv("PORT")
 
 	// Create new instance of the Features API package
-	api := features.New(getSession(), info, warn, er).API()
+	api := features.New(getSession(), info, debug, er).API()
 
-	// Listen on port 8080
+	// Listen and serve API
+	p := os.Getenv("PORT")
 	info.Println("Server listening on port:", p)
 	er.Fatal(http.ListenAndServe("localhost:"+p, api))
 }
@@ -50,7 +50,7 @@ func main() {
 // Setup or MongoDB session. Currently, hitting a local instance of mongo.
 func getSession() *mgo.Session {
 	info.Println("[MongoDB] Connecting to MongoDB...")
-	s, err := mgo.Dial("mongodb://localhost")
+	s, err := mgo.Dial(os.Getenv("MONGO_CONNECT"))
 
 	if err != nil {
 		er.Fatalln(err)
