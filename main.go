@@ -9,7 +9,6 @@ import (
 
 	"github.com/CiaranAshton/features/features"
 	"github.com/joho/godotenv"
-	"github.com/julienschmidt/httprouter"
 )
 
 var (
@@ -41,20 +40,11 @@ func main() {
 	p := os.Getenv("PORT")
 
 	// Create new instance of the Features API package
-	fa := features.New(getSession(), info, warn, er)
-
-	// Create Router
-	r := httprouter.New()
-
-	// Routes
-	r.GET("/features", fa.GetFeatures)
-	r.GET("/features/:id", fa.GetFeature)
-	r.POST("/features", fa.CreateFeature)
-	r.DELETE("/features/:id", fa.DeleteFeature)
+	api := features.New(getSession(), info, warn, er).API()
 
 	// Listen on port 8080
 	info.Println("Server listening on port:", p)
-	er.Fatal(http.ListenAndServe("localhost:"+p, r))
+	er.Fatal(http.ListenAndServe("localhost:"+p, api))
 }
 
 // Setup or MongoDB session. Currently, hitting a local instance of mongo.
