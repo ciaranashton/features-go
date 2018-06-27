@@ -8,6 +8,7 @@ import (
 	"gopkg.in/mgo.v2"
 
 	"github.com/CiaranAshton/features/features"
+	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -32,9 +33,15 @@ func init() {
 }
 
 func main() {
+	// Get Environment variables
+	err := godotenv.Load()
+	if err != nil {
+		er.Fatalln("Error loading environment variables", err)
+	}
+	p := os.Getenv("PORT")
+
 	// Create new instance of the Features API package
-	fa := features.New(getSession(), info)
-	p := "8080"
+	fa := features.New(getSession(), info, warn, er)
 
 	// Create Router
 	r := httprouter.New()

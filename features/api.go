@@ -10,9 +10,11 @@ import (
 type FeatureAPI struct {
 	session *mgo.Session
 	info    *log.Logger
+	warn    *log.Logger
+	err     *log.Logger
 }
 
-// New method for creating a new instance of a FeatureAPI
-func New(s *mgo.Session, i *log.Logger) *FeatureAPI {
-	return &FeatureAPI{s, i}
+// New function for creating an instance of FeatureAPI
+func New(s *mgo.Session, i, w, e *log.Logger) *FeatureAPI {
+	return &FeatureAPI{s, i, w, e}
 }
