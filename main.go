@@ -20,10 +20,10 @@ var (
 func init() {
 	info = log.New(os.Stdout,
 		"\033[1;32m[Info]:\033[0m ",
-		log.Ldate|log.Ltime|log.Lshortfile)
+		log.Ldate|log.Ltime)
 
 	debug = log.New(os.Stdout,
-		"\033[1;33m[Debug]:\033[0m ",
+		"\033[1;34m[Debug]:\033[0m ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
 	er = log.New(os.Stderr,
