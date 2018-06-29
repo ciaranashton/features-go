@@ -16,11 +16,14 @@ func (fa FeatureAPI) CreateFeature(w http.ResponseWriter, r *http.Request, p htt
 
 	json.NewDecoder(r.Body).Decode(&f)
 
+	fa.debug.Println(f)
+
 	f.Id = bson.NewObjectId()
 
-	fa.session.DB("cjla").C("features").Insert(f)
+	cf, _ := fa.db.CreateFeature(fa, f)
 
-	fj, err := json.Marshal(f)
+	fj, err := json.Marshal(cf)
+
 	if err != nil {
 		fmt.Println(err)
 	}

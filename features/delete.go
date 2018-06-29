@@ -19,11 +19,12 @@ func (fa FeatureAPI) DeleteFeature(w http.ResponseWriter, r *http.Request, p htt
 
 	oid := bson.ObjectIdHex(id)
 
-	if err := fa.session.DB("cjla").C("features").RemoveId(oid); err != nil {
-		w.WriteHeader(404)
-		return
+	err := fa.db.DeleteFeature(fa, oid)
+
+	if err != nil {
+		fmt.Println(err)
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Deleted Feature", oid, "\n")
+	fmt.Fprint(w, "Deleted Feature \n")
 }

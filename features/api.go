@@ -8,20 +8,19 @@ import (
 	"github.com/urfave/negroni"
 
 	"github.com/julienschmidt/httprouter"
-	"gopkg.in/mgo.v2"
 )
 
 // FeatureAPI structure
 type FeatureAPI struct {
-	session *mgo.Session
-	info    *log.Logger
-	debug   *log.Logger
-	err     *log.Logger
+	db    DB
+	info  *log.Logger
+	debug *log.Logger
+	err   *log.Logger
 }
 
 // New function for creating an instance of FeatureAPI
-func New(s *mgo.Session, i, w, e *log.Logger) *FeatureAPI {
-	return &FeatureAPI{s, i, w, e}
+func New(db DB, i, w, e *log.Logger) *FeatureAPI {
+	return &FeatureAPI{db, i, w, e}
 }
 
 // API defines the api routes for the service
@@ -40,12 +39,7 @@ func (fa FeatureAPI) API() *negroni.Negroni {
 
 	rl := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		m := httpsnoop.CaptureMetrics(mux, w, r)
-		fa.info.Printf(
-			"%s %s | %d",
-			r.Method,
-			r.URL,
-			m.Code,
-		)
+		fa.info.Printf("%s %s | %d", r.Method, r.URL, m.Code)
 	})
 
 	n.UseHandler(rl)

@@ -5,19 +5,15 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/CiaranAshton/features/models"
 	"github.com/julienschmidt/httprouter"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // GetFeatures returns all features in the db
 func (fa FeatureAPI) GetFeatures(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	fs := []models.Feature{}
-
 	fa.info.Println("[MongoDB] Fetching all features from mongoDB")
-	if err := fa.session.DB("cjla").C("features").Find(nil).All(&fs); err != nil {
-		w.WriteHeader(404)
-		return
+	fs, err := fa.db.GetAllFeatures(fa, w)
+	if err != nil {
+		fa.err.Println(err)
 	}
 
 	fsj, err := json.Marshal(fs)
@@ -34,19 +30,7 @@ func (fa FeatureAPI) GetFeatures(w http.ResponseWriter, r *http.Request, p httpr
 func (fa FeatureAPI) GetFeature(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	id := p.ByName("id")
 
-	if !bson.IsObjectIdHex(id) {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	oid := bson.ObjectIdHex(id)
-
-	f := models.Feature{}
-
-	if err := fa.session.DB("cjla").C("features").FindId(oid).One(&f); err != nil {
-		w.WriteHeader(404)
-		return
-	}
+	f, err := fa.db.GetFeature(fa, id, w)
 
 	fj, err := json.Marshal(f)
 	if err != nil {
