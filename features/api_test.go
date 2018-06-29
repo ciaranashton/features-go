@@ -36,18 +36,18 @@ func (db TestDatabase) GetAllFeatures(fa FeatureAPI, w http.ResponseWriter) ([]m
 	return fs, nil
 }
 
-func (db TestDatabase) GetFeature(fa FeatureAPI, id string, w http.ResponseWriter) (models.Feature, error) {
-	f1 := models.Feature{
+func (db TestDatabase) GetFeature(fa FeatureAPI, oid bson.ObjectId, f *models.Feature) error {
+	*f = models.Feature{
 		Id:      "001",
 		Name:    "Test 01",
 		Enabled: true,
 	}
 
-	return f1, nil
+	return nil
 }
 
-func (db TestDatabase) CreateFeature(fa FeatureAPI, f models.Feature) (models.Feature, error) {
-	return f, nil
+func (db TestDatabase) CreateFeature(fa FeatureAPI, f *models.Feature) error {
+	return nil
 }
 
 func (db TestDatabase) DeleteFeature(fa FeatureAPI, oid bson.ObjectId) error {
@@ -92,7 +92,7 @@ func TestGetFeature(t *testing.T) {
 
 	e := httpexpect.New(t, server.URL)
 
-	e.GET("/features/001").
+	e.GET("/features/5b315dc2379785611a23e4be").
 		Expect().
 		Status(http.StatusOK).
 		JSON().

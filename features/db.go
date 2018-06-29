@@ -13,8 +13,8 @@ import (
 // DB interface allows us to switch out mongo for another db painlessly
 type DB interface {
 	GetAllFeatures(fa FeatureAPI, w http.ResponseWriter) ([]models.Feature, error)
-	GetFeature(fa FeatureAPI, oid string, w http.ResponseWriter) (models.Feature, error)
-	CreateFeature(fa FeatureAPI, f models.Feature) (models.Feature, error)
+	GetFeature(fa FeatureAPI, oid bson.ObjectId, f *models.Feature) error
+	CreateFeature(fa FeatureAPI, f *models.Feature) error
 	DeleteFeature(fa FeatureAPI, oid bson.ObjectId) error
 }
 
@@ -54,24 +54,20 @@ func (db Database) GetAllFeatures(fa FeatureAPI, w http.ResponseWriter) ([]model
 }
 
 // GetFeature is a query for getting a feature by id from the database
-func (db Database) GetFeature(fa FeatureAPI, id string, w http.ResponseWriter) (models.Feature, error) {
-	oid := bson.ObjectIdHex(id)
-	f := models.Feature{}
+func (db Database) GetFeature(fa FeatureAPI, oid bson.ObjectId, f *models.Feature) error {
+	err := session.DB("cjla").C("features").FindId(oid).One(&f)
 
-	if err := session.DB("cjla").C("features").FindId(oid).One(&f); err != nil {
-		w.WriteHeader(404)
-		return f, err
-	}
-
-	return f, nil
+	return err
 }
 
-func (db Database) CreateFeature(fa FeatureAPI, f models.Feature) (models.Feature, error) {
-	session.DB("cjla").C("features").Insert(&f)
+// CreateFeature persists a given feature in the databasae
+func (db Database) CreateFeature(fa FeatureAPI, f *models.Feature) error {
+	err := session.DB("cjla").C("features").Insert(&f)
 
-	return f, nil
+	return err
 }
 
+// DeleteFeature perminantly removes a feature (oid) from the database
 func (db Database) DeleteFeature(fa FeatureAPI, oid bson.ObjectId) error {
 	err := session.DB("cjla").C("features").RemoveId(oid)
 
