@@ -22,7 +22,8 @@ func (fa FeatureAPI) DeleteFeature(w http.ResponseWriter, r *http.Request, p htt
 	err := fa.db.DeleteFeature(fa, oid)
 
 	if err != nil {
-		fmt.Println(err)
+		w.WriteHeader(404)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

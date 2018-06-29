@@ -20,9 +20,14 @@ func (fa FeatureAPI) CreateFeature(w http.ResponseWriter, r *http.Request, p htt
 
 	f.Id = bson.NewObjectId()
 
-	cf, _ := fa.db.CreateFeature(fa, f)
+	err := fa.db.CreateFeature(fa, &f)
 
-	fj, err := json.Marshal(cf)
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
+	fj, err := json.Marshal(f)
 
 	if err != nil {
 		fmt.Println(err)
