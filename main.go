@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"gopkg.in/mgo.v2"
-
 	"github.com/CiaranAshton/features/features"
 	"github.com/joho/godotenv"
 )
@@ -39,21 +37,11 @@ func main() {
 	}
 
 	// Create new instance of the Features API package
-	api := features.New(getSession(), info, debug, er).API()
+	db := features.NewDatabase()
+	api := features.New(db, info, debug, er).API()
 
 	// Listen and serve API
 	p := os.Getenv("PORT")
 	info.Println("Server listening on port:", p)
 	er.Fatal(http.ListenAndServe("localhost:"+p, api))
-}
-
-// Setup or MongoDB session. Currently, hitting a local instance of mongo.
-func getSession() *mgo.Session {
-	info.Println("[MongoDB] Connecting to MongoDB...")
-	s, err := mgo.Dial(os.Getenv("MONGO_CONNECT"))
-
-	if err != nil {
-		er.Fatalln(err)
-	}
-	return s
 }
