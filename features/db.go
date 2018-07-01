@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/CiaranAshton/features/logger"
 	"github.com/CiaranAshton/features/models"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -11,9 +12,9 @@ import (
 
 // DB interface allows us to switch out mongo for another db painlessly
 type DB interface {
-	GetAllFeatures(debug *log.Logger, fs *[]models.Feature) error
-	GetFeature(debug *log.Logger, id string, f *models.Feature) error
-	CreateFeature(debug *log.Logger, f *models.Feature) error
+	GetAllFeatures(l *logger.Logger, fs *[]models.Feature) error
+	GetFeature(l *logger.Logger, id string, f *models.Feature) error
+	CreateFeature(l *logger.Logger, f *models.Feature) error
 	DeleteFeature(fa FeatureAPI, oid bson.ObjectId) error
 }
 
@@ -31,7 +32,9 @@ func NewDatabase() DB {
 
 // GetSession Currently, hitting a local instance of mongo.
 func getSession() *mgo.Session {
-	log.Println("[MongoDB] Connecting to MongoDB...")
+	l := logger.NewLogger()
+
+	l.Info.Println("[MongoDB] Connecting to MongoDB...")
 	s, err := mgo.Dial(os.Getenv("MONGO_CONNECT"))
 
 	if err != nil {
@@ -41,16 +44,16 @@ func getSession() *mgo.Session {
 }
 
 // GetAllFeatures does something
-func (db Database) GetAllFeatures(debug *log.Logger, fs *[]models.Feature) error {
-	debug.Println("[MongoDB] Fetching all features from Mongo")
+func (db Database) GetAllFeatures(l *logger.Logger, fs *[]models.Feature) error {
+	l.Debug.Println("[MongoDB] Fetching all features from Mongo")
 	err := session.DB("cjla").C("features").Find(nil).All(fs)
 
 	return err
 }
 
 // GetFeature is a query for getting a feature by id from the database
-func (db Database) GetFeature(debug *log.Logger, id string, f *models.Feature) error {
-	debug.Printf("[MongoDB] Fetching feature %v from Mongo", id)
+func (db Database) GetFeature(l *logger.Logger, id string, f *models.Feature) error {
+	l.Debug.Printf("[MongoDB] Fetching feature %v from Mongo", id)
 	oid := bson.ObjectIdHex(id)
 	err := session.DB("cjla").C("features").FindId(oid).One(f)
 
@@ -58,8 +61,8 @@ func (db Database) GetFeature(debug *log.Logger, id string, f *models.Feature) e
 }
 
 // CreateFeature persists a given feature in the databasae
-func (db Database) CreateFeature(debug *log.Logger, f *models.Feature) error {
-	debug.Printf("[MongoDB] Persisting feature %s to database\n", f.Name)
+func (db Database) CreateFeature(l *logger.Logger, f *models.Feature) error {
+	l.Debug.Printf("[MongoDB] Persisting feature %s to database\n", f.Name)
 	err := session.DB("cjla").C("features").Insert(&f)
 
 	return err

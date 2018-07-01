@@ -14,10 +14,10 @@ import (
 func (fa FeatureAPI) GetFeatures(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	fs := []models.Feature{}
 
-	err := fa.db.GetAllFeatures(fa.debug, &fs)
+	err := fa.db.GetAllFeatures(fa.l, &fs)
 
 	if err != nil {
-		fa.err.Println("Unable to find features")
+		fa.l.Err.Println("Unable to find features")
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, "Features not found\n")
 		return
@@ -35,7 +35,7 @@ func (fa FeatureAPI) GetFeature(w http.ResponseWriter, r *http.Request, p httpro
 	id := p.ByName("id")
 
 	if !bson.IsObjectIdHex(id) {
-		fa.err.Printf("Id %s is not a valid Id \n", id)
+		fa.l.Err.Printf("Id %s is not a valid Id \n", id)
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Invalid Id: %s", id)
 		return
@@ -43,10 +43,10 @@ func (fa FeatureAPI) GetFeature(w http.ResponseWriter, r *http.Request, p httpro
 
 	f := models.Feature{}
 
-	err := fa.db.GetFeature(fa.debug, id, &f)
+	err := fa.db.GetFeature(fa.l, id, &f)
 
 	if err != nil {
-		fa.err.Println("Unable to find feature:", id)
+		fa.l.Err.Println("Unable to find feature:", id)
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "Feature not found: %s", id)
 		return

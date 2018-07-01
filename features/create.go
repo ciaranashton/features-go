@@ -18,10 +18,10 @@ func (fa FeatureAPI) CreateFeature(w http.ResponseWriter, r *http.Request, p htt
 
 	f.Id = bson.NewObjectId()
 
-	err := fa.db.CreateFeature(fa.debug, &f)
+	err := fa.db.CreateFeature(fa.l, &f)
 
 	if err != nil {
-		fa.err.Println("Unable to create feature")
+		fa.l.Err.Println("Unable to create feature")
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, "Issue creating feature\n")
 		return

@@ -1,11 +1,11 @@
 package features
 
 import (
-	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/CiaranAshton/features/logger"
 
 	"github.com/CiaranAshton/features/models"
 	"github.com/gavv/httpexpect"
@@ -18,7 +18,7 @@ func NewTestDatabase() DB {
 	return &TestDatabase{}
 }
 
-func (db TestDatabase) GetAllFeatures(debug *log.Logger, fs *[]models.Feature) error {
+func (db TestDatabase) GetAllFeatures(l *logger.Logger, fs *[]models.Feature) error {
 	f1 := models.Feature{
 		Id:      "001",
 		Name:    "Test 01",
@@ -36,7 +36,7 @@ func (db TestDatabase) GetAllFeatures(debug *log.Logger, fs *[]models.Feature) e
 	return nil
 }
 
-func (db TestDatabase) GetFeature(debug *log.Logger, id string, f *models.Feature) error {
+func (db TestDatabase) GetFeature(l *logger.Logger, id string, f *models.Feature) error {
 	*f = models.Feature{
 		Id:      "001",
 		Name:    "Test 01",
@@ -46,7 +46,7 @@ func (db TestDatabase) GetFeature(debug *log.Logger, id string, f *models.Featur
 	return nil
 }
 
-func (db TestDatabase) CreateFeature(debug *log.Logger, f *models.Feature) error {
+func (db TestDatabase) CreateFeature(l *logger.Logger, f *models.Feature) error {
 	return nil
 }
 
@@ -55,10 +55,10 @@ func (db TestDatabase) DeleteFeature(fa FeatureAPI, oid bson.ObjectId) error {
 }
 
 func TestGetFeatures(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
@@ -82,10 +82,10 @@ func TestGetFeatures(t *testing.T) {
 }
 
 func TestGetFeature(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
@@ -105,10 +105,10 @@ func TestGetFeature(t *testing.T) {
 }
 
 func TestGetFeatureNonObjectId(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
@@ -121,10 +121,10 @@ func TestGetFeatureNonObjectId(t *testing.T) {
 }
 
 func TestCreateFeature(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
@@ -148,10 +148,10 @@ func TestCreateFeature(t *testing.T) {
 }
 
 func TestDeleteFeature(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
@@ -164,10 +164,10 @@ func TestDeleteFeature(t *testing.T) {
 }
 
 func TestDeleteFeatureNonObjectId(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
@@ -194,15 +194,15 @@ func (e *errorString) Error() string {
 	return e.s
 }
 
-func (db TestErrorDatabase) GetAllFeatures(debug *log.Logger, fs *[]models.Feature) error {
+func (db TestErrorDatabase) GetAllFeatures(l *logger.Logger, fs *[]models.Feature) error {
 	return &errorString{"Error"}
 }
 
-func (db TestErrorDatabase) GetFeature(debug *log.Logger, id string, f *models.Feature) error {
+func (db TestErrorDatabase) GetFeature(l *logger.Logger, id string, f *models.Feature) error {
 	return &errorString{"Error"}
 }
 
-func (db TestErrorDatabase) CreateFeature(debug *log.Logger, f *models.Feature) error {
+func (db TestErrorDatabase) CreateFeature(l *logger.Logger, f *models.Feature) error {
 	return &errorString{"Error"}
 }
 
@@ -211,10 +211,10 @@ func (db TestErrorDatabase) DeleteFeature(fa FeatureAPI, oid bson.ObjectId) erro
 }
 
 func TestGetFeaturesNotFound(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestErrorDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
@@ -227,10 +227,10 @@ func TestGetFeaturesNotFound(t *testing.T) {
 }
 
 func TestGetFeatureNotFound(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestErrorDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
@@ -243,10 +243,10 @@ func TestGetFeatureNotFound(t *testing.T) {
 }
 
 func TestCreateFeatureDBError(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestErrorDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
@@ -266,10 +266,10 @@ func TestCreateFeatureDBError(t *testing.T) {
 }
 
 func TestDeleteFeatureDBError(t *testing.T) {
-	l := log.New(ioutil.Discard, "", 0)
+	l := logger.NewLogger(true)
 
 	db := NewTestErrorDatabase()
-	api := New(db, l, l, l).API()
+	api := New(db, l).API()
 
 	server := httptest.NewServer(api)
 	defer server.Close()
