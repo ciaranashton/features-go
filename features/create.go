@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/CiaranAshton/features/models"
+	"github.com/CiaranAshton/features-go/models"
 	"github.com/julienschmidt/httprouter"
 	"gopkg.in/mgo.v2/bson"
 )

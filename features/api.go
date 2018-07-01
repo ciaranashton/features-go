@@ -1,7 +1,7 @@
 package features
 
 import (
-	"github.com/CiaranAshton/features/logger"
+	"github.com/CiaranAshton/features-go/logger"
 	"github.com/julienschmidt/httprouter"
 
 	"github.com/urfave/negroni"

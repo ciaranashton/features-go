@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/CiaranAshton/features/logger"
+	"github.com/CiaranAshton/features-go/logger"
 
-	"github.com/CiaranAshton/features/features"
+	"github.com/CiaranAshton/features-go/features"
 	"github.com/joho/godotenv"
 )
 

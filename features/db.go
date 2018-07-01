@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/CiaranAshton/features/logger"
-	"github.com/CiaranAshton/features/models"
+	"github.com/CiaranAshton/features-go/logger"
+	"github.com/CiaranAshton/features-go/models"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )

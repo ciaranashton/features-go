@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/CiaranAshton/features/logger"
+	"github.com/CiaranAshton/features-go/logger"
+	"github.com/CiaranAshton/features-go/models"
 
-	"github.com/CiaranAshton/features/models"
 	"github.com/gavv/httpexpect"
 	"gopkg.in/mgo.v2/bson"
 )
