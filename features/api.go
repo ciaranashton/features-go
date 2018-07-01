@@ -4,6 +4,7 @@ import (
 	"github.com/CiaranAshton/features-go/logger"
 	"github.com/julienschmidt/httprouter"
 
+	"github.com/unrolled/secure"
 	"github.com/urfave/negroni"
 )
 
@@ -23,8 +24,30 @@ func (fa FeatureAPI) API() *negroni.Negroni {
 	// Create Router
 	mux := httprouter.New()
 
+	sec := secure.New(secure.Options{
+		AllowedHosts:            []string{"ssl.cjla.com"},
+		HostsProxyHeaders:       []string{"X-Forwarded-Hosts"},
+		SSLRedirect:             true,
+		SSLTemporaryRedirect:    false,
+		SSLHost:                 "ssl.cjla.com",
+		SSLHostFunc:             nil,
+		SSLProxyHeaders:         map[string]string{"X-Forwarded-Proto": "https"},
+		STSSeconds:              315360000,
+		STSIncludeSubdomains:    true,
+		STSPreload:              true,
+		ForceSTSHeader:          false,
+		FrameDeny:               true,
+		CustomFrameOptionsValue: "SAMEORIGIN",
+		ContentTypeNosniff:      true,
+		ContentSecurityPolicy:   "default-src 'self'",
+		ReferrerPolicy:          "same-origin",
+
+		IsDevelopment: true,
+	})
+
 	// 	Middlewares
 	n := negroni.New()
+	n.Use(negroni.HandlerFunc(sec.HandlerFuncWithNext))
 	n.UseHandler(logger.ResponseLogger(mux))
 
 	// Routes
