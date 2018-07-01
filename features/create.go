@@ -16,21 +16,22 @@ func (fa FeatureAPI) CreateFeature(w http.ResponseWriter, r *http.Request, p htt
 
 	json.NewDecoder(r.Body).Decode(&f)
 
-	fa.debug.Println(f)
-
 	f.Id = bson.NewObjectId()
 
-	err := fa.db.CreateFeature(fa, &f)
+	err := fa.db.CreateFeature(fa.debug, &f)
 
 	if err != nil {
-		w.WriteHeader(404)
+		fa.err.Println("Unable to create feature")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Issue creating feature\n")
 		return
 	}
 
 	fj, err := json.Marshal(f)
 
 	if err != nil {
-		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

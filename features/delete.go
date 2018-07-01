@@ -13,7 +13,7 @@ func (fa FeatureAPI) DeleteFeature(w http.ResponseWriter, r *http.Request, p htt
 	id := p.ByName("id")
 
 	if !bson.IsObjectIdHex(id) {
-		w.WriteHeader(404)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -22,7 +22,7 @@ func (fa FeatureAPI) DeleteFeature(w http.ResponseWriter, r *http.Request, p htt
 	err := fa.db.DeleteFeature(fa, oid)
 
 	if err != nil {
-		w.WriteHeader(404)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

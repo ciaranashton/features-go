@@ -18,7 +18,7 @@ func NewTestDatabase() DB {
 	return &TestDatabase{}
 }
 
-func (db TestDatabase) GetAllFeatures(fa FeatureAPI, w http.ResponseWriter) ([]models.Feature, error) {
+func (db TestDatabase) GetAllFeatures(debug *log.Logger, fs *[]models.Feature) error {
 	f1 := models.Feature{
 		Id:      "001",
 		Name:    "Test 01",
@@ -31,12 +31,12 @@ func (db TestDatabase) GetAllFeatures(fa FeatureAPI, w http.ResponseWriter) ([]m
 		Enabled: false,
 	}
 
-	fs := []models.Feature{f1, f2}
+	*fs = []models.Feature{f1, f2}
 
-	return fs, nil
+	return nil
 }
 
-func (db TestDatabase) GetFeature(fa FeatureAPI, oid bson.ObjectId, f *models.Feature) error {
+func (db TestDatabase) GetFeature(debug *log.Logger, id string, f *models.Feature) error {
 	*f = models.Feature{
 		Id:      "001",
 		Name:    "Test 01",
@@ -46,7 +46,7 @@ func (db TestDatabase) GetFeature(fa FeatureAPI, oid bson.ObjectId, f *models.Fe
 	return nil
 }
 
-func (db TestDatabase) CreateFeature(fa FeatureAPI, f *models.Feature) error {
+func (db TestDatabase) CreateFeature(debug *log.Logger, f *models.Feature) error {
 	return nil
 }
 

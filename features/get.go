@@ -7,23 +7,22 @@ import (
 
 	"github.com/CiaranAshton/features/models"
 	"github.com/julienschmidt/httprouter"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // GetFeatures returns all features in the db
 func (fa FeatureAPI) GetFeatures(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	fa.info.Println("[MongoDB] Fetching all features from mongoDB")
-	fs, err := fa.db.GetAllFeatures(fa, w)
+	fs := []models.Feature{}
+
+	err := fa.db.GetAllFeatures(fa.debug, &fs)
 
 	if err != nil {
-		w.WriteHeader(404)
+		fa.err.Println("Unable to find features")
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Features not found\n")
 		return
 	}
 
-	fsj, err := json.Marshal(fs)
-	if err != nil {
-		fmt.Println(err)
-	}
+	fsj, _ := json.Marshal(fs)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -34,21 +33,18 @@ func (fa FeatureAPI) GetFeatures(w http.ResponseWriter, r *http.Request, p httpr
 func (fa FeatureAPI) GetFeature(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	id := p.ByName("id")
 
-	oid := bson.ObjectIdHex(id)
-
 	f := models.Feature{}
 
-	err := fa.db.GetFeature(fa, oid, &f)
+	err := fa.db.GetFeature(fa.debug, id, &f)
 
 	if err != nil {
-		w.WriteHeader(404)
+		fa.err.Println("Unable to find feature:", id)
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "Feature not found: %s\n", id)
 		return
 	}
 
-	fj, err := json.Marshal(f)
-	if err != nil {
-		fmt.Println(err)
-	}
+	fj, _ := json.Marshal(f)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

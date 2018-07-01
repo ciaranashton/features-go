@@ -2,7 +2,6 @@ package features
 
 import (
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/CiaranAshton/features/models"
@@ -12,9 +11,9 @@ import (
 
 // DB interface allows us to switch out mongo for another db painlessly
 type DB interface {
-	GetAllFeatures(fa FeatureAPI, w http.ResponseWriter) ([]models.Feature, error)
-	GetFeature(fa FeatureAPI, oid bson.ObjectId, f *models.Feature) error
-	CreateFeature(fa FeatureAPI, f *models.Feature) error
+	GetAllFeatures(debug *log.Logger, fs *[]models.Feature) error
+	GetFeature(debug *log.Logger, id string, f *models.Feature) error
+	CreateFeature(debug *log.Logger, f *models.Feature) error
 	DeleteFeature(fa FeatureAPI, oid bson.ObjectId) error
 }
 
@@ -42,26 +41,25 @@ func getSession() *mgo.Session {
 }
 
 // GetAllFeatures does something
-func (db Database) GetAllFeatures(fa FeatureAPI, w http.ResponseWriter) ([]models.Feature, error) {
-	fs := []models.Feature{}
+func (db Database) GetAllFeatures(debug *log.Logger, fs *[]models.Feature) error {
+	debug.Println("[MongoDB] Fetching all features from Mongo")
+	err := session.DB("cjla").C("features").Find(nil).All(fs)
 
-	if err := session.DB("cjla").C("features").Find(nil).All(&fs); err != nil {
-		w.WriteHeader(404)
-		return fs, err
-	}
-
-	return fs, nil
+	return err
 }
 
 // GetFeature is a query for getting a feature by id from the database
-func (db Database) GetFeature(fa FeatureAPI, oid bson.ObjectId, f *models.Feature) error {
-	err := session.DB("cjla").C("features").FindId(oid).One(&f)
+func (db Database) GetFeature(debug *log.Logger, id string, f *models.Feature) error {
+	debug.Printf("[MongoDB] Fetching feature %v from Mongo", id)
+	oid := bson.ObjectIdHex(id)
+	err := session.DB("cjla").C("features").FindId(oid).One(f)
 
 	return err
 }
 
 // CreateFeature persists a given feature in the databasae
-func (db Database) CreateFeature(fa FeatureAPI, f *models.Feature) error {
+func (db Database) CreateFeature(debug *log.Logger, f *models.Feature) error {
+	debug.Printf("[MongoDB] Persisting feature %s to database\n", f.Name)
 	err := session.DB("cjla").C("features").Insert(&f)
 
 	return err
