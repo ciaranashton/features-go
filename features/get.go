@@ -7,6 +7,7 @@ import (
 
 	"github.com/CiaranAshton/features/models"
 	"github.com/julienschmidt/httprouter"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // GetFeatures returns all features in the db
@@ -33,6 +34,13 @@ func (fa FeatureAPI) GetFeatures(w http.ResponseWriter, r *http.Request, p httpr
 func (fa FeatureAPI) GetFeature(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	id := p.ByName("id")
 
+	if !bson.IsObjectIdHex(id) {
+		fa.err.Printf("Id %s is not a valid Id \n", id)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Invalid Id: %s", id)
+		return
+	}
+
 	f := models.Feature{}
 
 	err := fa.db.GetFeature(fa.debug, id, &f)
@@ -40,7 +48,7 @@ func (fa FeatureAPI) GetFeature(w http.ResponseWriter, r *http.Request, p httpro
 	if err != nil {
 		fa.err.Println("Unable to find feature:", id)
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Feature not found: %s\n", id)
+		fmt.Fprintf(w, "Feature not found: %s", id)
 		return
 	}
 

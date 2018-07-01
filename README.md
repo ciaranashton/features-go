@@ -14,7 +14,8 @@ $ go test ./features -v
 ```
 
 ## TODOs
-- Further integration testing (error cases)
+- PUT endpoint for updating a featue
+- Allow features to be updated for a single application
 - Unit testing
 - Validation
 - Authentication

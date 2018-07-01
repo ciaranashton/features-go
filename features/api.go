@@ -28,8 +28,13 @@ func (fa FeatureAPI) API() *negroni.Negroni {
 	// Create Router
 	mux := httprouter.New()
 
-	//middleware
+	// 	Middlewares
 	n := negroni.New()
+
+	rl := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		m := httpsnoop.CaptureMetrics(mux, w, r)
+		log.Printf("%s %s | %d \n", r.Method, r.URL, m.Code)
+	})
 
 	// Routes
 	mux.GET("/features", fa.GetFeatures)
@@ -37,11 +42,7 @@ func (fa FeatureAPI) API() *negroni.Negroni {
 	mux.POST("/features", fa.CreateFeature)
 	mux.DELETE("/features/:id", fa.DeleteFeature)
 
-	rl := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		m := httpsnoop.CaptureMetrics(mux, w, r)
-		fa.info.Printf("%s %s | %d", r.Method, r.URL, m.Code)
-	})
-
+	// Use Middlewares
 	n.UseHandler(rl)
 
 	return n

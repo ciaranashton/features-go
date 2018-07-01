@@ -13,6 +13,7 @@ func (fa FeatureAPI) DeleteFeature(w http.ResponseWriter, r *http.Request, p htt
 	id := p.ByName("id")
 
 	if !bson.IsObjectIdHex(id) {
+		fa.err.Printf("Id %s is not a valid Id \n", id)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -27,5 +28,5 @@ func (fa FeatureAPI) DeleteFeature(w http.ResponseWriter, r *http.Request, p htt
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Deleted Feature \n")
+	fmt.Fprintln(w, "Deleted Feature:", id)
 }

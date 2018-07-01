@@ -27,14 +27,9 @@ func (fa FeatureAPI) CreateFeature(w http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 
-	fj, err := json.Marshal(f)
-
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	fj, _ := json.Marshal(f)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "%s\n", fj)
+	fmt.Fprintf(w, "%s", fj)
 }

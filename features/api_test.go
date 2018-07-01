@@ -104,6 +104,22 @@ func TestGetFeature(t *testing.T) {
 		})
 }
 
+func TestGetFeatureNonObjectId(t *testing.T) {
+	l := log.New(ioutil.Discard, "", 0)
+
+	db := NewTestDatabase()
+	api := New(db, l, l, l).API()
+
+	server := httptest.NewServer(api)
+	defer server.Close()
+
+	e := httpexpect.New(t, server.URL)
+
+	e.GET("/features/123").
+		Expect().
+		Status(http.StatusBadRequest)
+}
+
 func TestCreateFeature(t *testing.T) {
 	l := log.New(ioutil.Discard, "", 0)
 
@@ -145,4 +161,122 @@ func TestDeleteFeature(t *testing.T) {
 	e.DELETE("/features/5b315dc2379785611a23e4be").
 		Expect().
 		Status(http.StatusOK)
+}
+
+func TestDeleteFeatureNonObjectId(t *testing.T) {
+	l := log.New(ioutil.Discard, "", 0)
+
+	db := NewTestDatabase()
+	api := New(db, l, l, l).API()
+
+	server := httptest.NewServer(api)
+	defer server.Close()
+
+	e := httpexpect.New(t, server.URL)
+
+	e.DELETE("/features/123").
+		Expect().
+		Status(http.StatusBadRequest)
+}
+
+// TestErrorDatabase methods always return an error
+type TestErrorDatabase struct{}
+
+func NewTestErrorDatabase() DB {
+	return &TestErrorDatabase{}
+}
+
+type errorString struct {
+	s string
+}
+
+func (e *errorString) Error() string {
+	return e.s
+}
+
+func (db TestErrorDatabase) GetAllFeatures(debug *log.Logger, fs *[]models.Feature) error {
+	return &errorString{"Error"}
+}
+
+func (db TestErrorDatabase) GetFeature(debug *log.Logger, id string, f *models.Feature) error {
+	return &errorString{"Error"}
+}
+
+func (db TestErrorDatabase) CreateFeature(debug *log.Logger, f *models.Feature) error {
+	return &errorString{"Error"}
+}
+
+func (db TestErrorDatabase) DeleteFeature(fa FeatureAPI, oid bson.ObjectId) error {
+	return &errorString{"Error"}
+}
+
+func TestGetFeaturesNotFound(t *testing.T) {
+	l := log.New(ioutil.Discard, "", 0)
+
+	db := NewTestErrorDatabase()
+	api := New(db, l, l, l).API()
+
+	server := httptest.NewServer(api)
+	defer server.Close()
+
+	e := httpexpect.New(t, server.URL)
+
+	e.GET("/features").
+		Expect().
+		Status(http.StatusNotFound)
+}
+
+func TestGetFeatureNotFound(t *testing.T) {
+	l := log.New(ioutil.Discard, "", 0)
+
+	db := NewTestErrorDatabase()
+	api := New(db, l, l, l).API()
+
+	server := httptest.NewServer(api)
+	defer server.Close()
+
+	e := httpexpect.New(t, server.URL)
+
+	e.GET("/features/5b315dc2379785611a23e4be").
+		Expect().
+		Status(http.StatusNotFound)
+}
+
+func TestCreateFeatureDBError(t *testing.T) {
+	l := log.New(ioutil.Discard, "", 0)
+
+	db := NewTestErrorDatabase()
+	api := New(db, l, l, l).API()
+
+	server := httptest.NewServer(api)
+	defer server.Close()
+
+	e := httpexpect.New(t, server.URL)
+
+	e.POST("/features").
+		WithJSON(struct {
+			Name    string
+			Enabled bool
+		}{
+			Name:    "Test 01",
+			Enabled: true,
+		}).
+		Expect().
+		Status(http.StatusBadRequest)
+}
+
+func TestDeleteFeatureDBError(t *testing.T) {
+	l := log.New(ioutil.Discard, "", 0)
+
+	db := NewTestErrorDatabase()
+	api := New(db, l, l, l).API()
+
+	server := httptest.NewServer(api)
+	defer server.Close()
+
+	e := httpexpect.New(t, server.URL)
+
+	e.DELETE("/features/5b315dc2379785611a23e4be").
+		Expect().
+		Status(http.StatusBadRequest)
 }
