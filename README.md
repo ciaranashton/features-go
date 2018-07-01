@@ -19,3 +19,4 @@ $ go test ./features -v
 - Unit testing
 - Validation
 - Authentication
+- Trace Id middleware

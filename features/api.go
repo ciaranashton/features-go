@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/julienschmidt/httprouter"
+
 	"github.com/felixge/httpsnoop"
 	"github.com/urfave/negroni"
-
-	"github.com/julienschmidt/httprouter"
 )
 
 // FeatureAPI structure
@@ -23,6 +23,13 @@ func New(db DB, i, w, e *log.Logger) *FeatureAPI {
 	return &FeatureAPI{db, i, w, e}
 }
 
+func responseLogger(mux *httprouter.Router) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		m := httpsnoop.CaptureMetrics(mux, w, r)
+		log.Printf("%s %s | %d \n", r.Method, r.URL, m.Code)
+	})
+}
+
 // API defines the api routes for the service
 func (fa FeatureAPI) API() *negroni.Negroni {
 	// Create Router
@@ -30,11 +37,7 @@ func (fa FeatureAPI) API() *negroni.Negroni {
 
 	// 	Middlewares
 	n := negroni.New()
-
-	rl := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		m := httpsnoop.CaptureMetrics(mux, w, r)
-		log.Printf("%s %s | %d \n", r.Method, r.URL, m.Code)
-	})
+	n.UseHandler(responseLogger(mux))
 
 	// Routes
 	mux.GET("/features", fa.GetFeatures)
@@ -43,7 +46,6 @@ func (fa FeatureAPI) API() *negroni.Negroni {
 	mux.DELETE("/features/:id", fa.DeleteFeature)
 
 	// Use Middlewares
-	n.UseHandler(rl)
 
 	return n
 }
