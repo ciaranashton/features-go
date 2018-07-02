@@ -54,6 +54,7 @@ func (fa FeatureAPI) API() *negroni.Negroni {
 	mux.GET("/features", fa.GetFeatures)
 	mux.GET("/features/:id", fa.GetFeature)
 	mux.POST("/features", fa.CreateFeature)
+	mux.PUT("/features/:id", fa.UpdateFeature)
 	mux.DELETE("/features/:id", fa.DeleteFeature)
 
 	return n

@@ -16,6 +16,7 @@ type DB interface {
 	GetFeature(l *logger.Logger, id string, f *models.Feature) error
 	CreateFeature(l *logger.Logger, f *models.Feature) error
 	DeleteFeature(fa FeatureAPI, oid bson.ObjectId) error
+	UpdateFeature(l *logger.Logger, oid bson.ObjectId, f *models.Feature) error
 }
 
 // Database type contains all methods for accessing the db
@@ -63,7 +64,7 @@ func (db Database) GetFeature(l *logger.Logger, id string, f *models.Feature) er
 // CreateFeature persists a given feature in the databasae
 func (db Database) CreateFeature(l *logger.Logger, f *models.Feature) error {
 	l.Debug.Printf("[MongoDB] Persisting feature %s to database\n", f.Name)
-	err := session.DB("cjla").C("features").Insert(&f)
+	err := session.DB("cjla").C("features").Insert(f)
 
 	return err
 }
@@ -71,6 +72,18 @@ func (db Database) CreateFeature(l *logger.Logger, f *models.Feature) error {
 // DeleteFeature perminantly removes a feature (oid) from the database
 func (db Database) DeleteFeature(fa FeatureAPI, oid bson.ObjectId) error {
 	err := session.DB("cjla").C("features").RemoveId(oid)
+
+	return err
+}
+
+// UpdateFeature updates a feature
+func (db Database) UpdateFeature(l *logger.Logger, oid bson.ObjectId, f *models.Feature) error {
+	l.Debug.Printf("[MongoDB] Persisiting changes to %s\n", oid)
+
+	query := bson.M{"_id": oid}
+	change := bson.M{"$set": bson.M{"name": f.Name, "enabled": f.Enabled}}
+
+	err := session.DB("cjla").C("features").Update(query, change)
 
 	return err
 }

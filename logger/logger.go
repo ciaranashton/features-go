@@ -36,7 +36,7 @@ func NewLogger(test ...bool) *Logger {
 		log.Ldate|log.Ltime|log.Lshortfile)
 
 	r := log.New(os.Stdout,
-		"\033[1;34m[Response]:\033[0m ",
+		"\033[1;37m[Response]:\033[0m ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
 	return &Logger{i, d, e, r}
